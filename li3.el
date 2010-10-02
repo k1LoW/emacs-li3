@@ -17,7 +17,7 @@
 ;; along with this program; if not, write to the Free Software
 ;; Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-;; Version: 0.0.1
+;; Version: 0.0.2
 ;; Author: k1LoW (Kenichirou Oyama), <k1lowxb [at] gmail [dot] com> <k1low [at] 101000lab [dot] org>
 ;; URL: http://code.101000lab.org, http://trac.codecheck.in
 
@@ -126,6 +126,7 @@
 ;;    default = "0.9.5"
 
 ;;; Change Log
+;; 0.0.2: Improved switch functions
 ;; 0.0.1: Initial commit
 
 ;;; TODO
@@ -213,16 +214,22 @@
 (defvar li3-singular-name nil
   "Lithium current singular name.")
 
+(defvar li3-camelized-singular-name nil
+  "Lithium current camelized singular name.")
+
 (defvar li3-plural-name nil
   "Lithium current plural name.")
+
+(defvar li3-camelized-plural-name nil
+  "Lithium current camelized plural name.")
 
 (defvar li3-model-regexp "^.+/app/models/\\([^/]+\\)\.php$"
   "Model file regExp.")
 
-(defvar li3-view-regexp "^.+/app/views/\\([^/]+\\)/\\([^/]+/\\)?\\([^/.]+\\)\\.\\([a-z]+\\)$"
+(defvar li3-view-regexp "^.+/app/views/\\([^/]+\\)/\\([^/]+/\\)?\\([^/.]+\\)\\.\\(html.php\\)$"
   "View file regExp.")
 
-(defvar li3-controller-regexp "^.+/app/controllers/\\([^/]+\\)_controller\.php$"
+(defvar li3-controller-regexp "^.+/app/controllers/\\([^/]+\\)Controller\.php$"
   "Contoroller file regExp.")
 
 (defvar li3-javascript-regexp "^.+/app/webroot/js/.+\.js$"
@@ -274,7 +281,9 @@
   (if (not (string-match li3-model-regexp (buffer-file-name)))
       nil
     (setq li3-singular-name (match-string 1 (buffer-file-name)))
+    (setq li3-camelized-singular-name (li3-camelize li3-singular-name))
     (setq li3-plural-name (li3-pluralize li3-singular-name))
+    (setq li3-camelized-plural-name (li3-camelize li3-plural-name))
     (setq li3-current-file-type 'model)))
 
 (defun li3-is-view-file ()
@@ -283,10 +292,12 @@
   (if (not (string-match li3-view-regexp (buffer-file-name)))
       nil
     (setq li3-plural-name (match-string 1 (buffer-file-name)))
+    (setq li3-camelized-plural-name (li3-camelize li3-plural-name))
     (setq li3-action-name (match-string 3 (buffer-file-name)))
     ;;(setq li3-view-extension (match-string 4 (buffer-file-name)))
     (setq li3-lower-camelized-action-name (li3-lower-camelize li3-action-name))
     (setq li3-singular-name (li3-singularize li3-plural-name))
+    (setq li3-camelized-singular-name (li3-camelize li3-singular-name))
     (setq li3-current-file-type 'view)))
 
 (defun li3-is-controller-file ()
@@ -294,7 +305,8 @@
   (li3-set-app-path)
   (if (not (string-match li3-controller-regexp (buffer-file-name)))
       nil
-    (setq li3-plural-name (match-string 1 (buffer-file-name)))
+    (setq li3-plural-name (downcase (match-string 1 (buffer-file-name))));; test
+    (setq li3-camelized-plural-name (li3-camelize li3-plural-name))
     (save-excursion
       (if
           (not (re-search-backward "function[ \t]*\\([a-zA-Z0-9_]+\\)[ \t]*\(" nil t))
@@ -303,6 +315,7 @@
     (setq li3-lower-camelized-action-name (li3-lower-camelize li3-action-name))
     (setq li3-snake-action-name (li3-snake li3-action-name))
     (setq li3-singular-name (li3-singularize li3-plural-name))
+    (setq li3-camelized-singular-name (li3-camelize li3-singular-name))
     (setq li3-current-file-type 'controller)))
 
 (defun li3-is-javascript-file ()
@@ -360,8 +373,8 @@
 (defun li3-set-regexp ()
   "Set regExp."
   (setq li3-model-regexp (concat li3-app-path "models/\\([^/]+\\)\.php"))
-  (setq li3-view-regexp (concat li3-app-path "views/\\([^/]+\\)/\\([^/]+/\\)?\\([^/.]+\\)\\.\\([a-z]+\\)$"))
-  (setq li3-controller-regexp (concat li3-app-path "controllers/\\([^/]+\\)_controller\.php$"))
+  (setq li3-view-regexp (concat li3-app-path "views/\\([^/]+\\)/\\([^/]+/\\)?\\([^/.]+\\)\\.\\(html.php\\)$"))
+  (setq li3-controller-regexp (concat li3-app-path "controllers/\\([^/]+\\)Controller\.php$"))
   (setq li3-model-testcase-regexp (concat li3-app-path "tests/cases/models/\\([^/]+\\)\.test\.php$"))
   (setq li3-javascript-regexp (concat li3-app-path "webroot/js/.+\.js$"))
   (setq li3-css-regexp (concat li3-app-path "webroot/css/.+\.css$"))
@@ -371,7 +384,7 @@
   "Switch to model."
   (interactive)
   (if (li3-is-file)
-      (li3-switch-to-file (concat li3-app-path "models/" li3-singular-name ".php"))
+      (li3-switch-to-file (concat li3-app-path "models/" li3-camelized-singular-name ".php"))
     (message "Can't find model name.")))
 
 (defun li3-switch-to-view ()
@@ -424,9 +437,9 @@
   (interactive)
   (if (li3-is-file)
       (progn
-        (if (file-exists-p (concat li3-app-path "controllers/" li3-plural-name "_controller.php"))
+        (if (file-exists-p (concat li3-app-path "controllers/" li3-camelized-plural-name "Controller.php"))
             (progn
-              (find-file (concat li3-app-path "controllers/" li3-plural-name "_controller.php"))
+              (find-file (concat li3-app-path "controllers/" li3-camelized-plural-name "Controller.php"))
               (goto-char (point-min))
               (if (not (re-search-forward (concat "function[ \t]*" li3-lower-camelized-action-name "[ \t]*\(") nil t))
                   (progn
@@ -434,8 +447,8 @@
                     (re-search-forward (concat "function[ \t]*" li3-action-name "[ \t]*\(") nil t)))
               (recenter))
           (if (y-or-n-p "Make new file?")
-              (find-file (concat li3-app-path "controllers/" li3-plural-name "_controller.php"))
-            (message (format "Can't find %s" (concat li3-app-path "controllers/" li3-plural-name "_controller.php"))))))
+              (find-file (concat li3-app-path "controllers/" li3-camelized-plural-name "Controller.php"))
+            (message (format "Can't find %s" (concat li3-app-path "controllers/" li3-camelized-plural-name "Controller.php"))))))
     (message "Can't switch to contoroller.")))
 
 (defun li3-switch-to-file (file-path)
@@ -725,15 +738,15 @@
                (call-process-shell-command
                 (concat "grep '[^_]function' "
                         li3-app-path
-                        "controllers/*_controller.php --with-filename")
+                        "controllers/*Controller.php --with-filename")
                 nil (current-buffer))
                (call-process-shell-command
                 (concat "grep '[^_]function' "
                         li3-app-path
-                        "*_controller.php --with-filename")
+                        "*Controller.php --with-filename")
                 nil (current-buffer))
                (goto-char (point-min))
-               (while (re-search-forward ".+\\/\\([^\\/]+\\)_controller\.php:.*function *\\([^ ]+\\) *(.*).*$" nil t)
+               (while (re-search-forward ".+\\/\\([^\\/]+\\)Controller\.php:.*function *\\([^ ]+\\) *(.*).*$" nil t)
                  (replace-match (concat (match-string 1) " / " (match-string 2))))
                )
            (with-current-buffer (anything-candidate-buffer 'local)
@@ -776,25 +789,25 @@
 (defun anything-c-li3-switch-to-controller ()
   "Switch to contoroller."
   (li3-set-app-path)
-  (if (file-exists-p (concat li3-app-path "controllers/" li3-plural-name "_controller.php"))
+  (if (file-exists-p (concat li3-app-path "controllers/" li3-plural-name "Controller.php"))
       (progn
-        (find-file (concat li3-app-path "controllers/" li3-plural-name "_controller.php"))
+        (find-file (concat li3-app-path "controllers/" li3-plural-name "Controller.php"))
         (goto-char (point-min))
         (if (not (re-search-forward (concat "function[ \t]*" li3-lower-camelized-action-name "[ \t]*\(") nil t))
             (progn
               (goto-char (point-min))
               (re-search-forward (concat "function[ \t]*" li3-action-name "[ \t]*\(") nil t))))
-    (if (file-exists-p (concat li3-app-path li3-plural-name "_controller.php"))
+    (if (file-exists-p (concat li3-app-path li3-plural-name "Controller.php"))
         (progn
-          (find-file (concat li3-app-path li3-plural-name "_controller.php"))
+          (find-file (concat li3-app-path li3-plural-name "Controller.php"))
           (goto-char (point-min))
           (if (not (re-search-forward (concat "function[ \t]*" li3-lower-camelized-action-name "[ \t]*\(") nil t))
               (progn
                 (goto-char (point-min))
                 (re-search-forward (concat "function[ \t]*" li3-action-name "[ \t]*\(") nil t))))
       (if (y-or-n-p "Make new file?")
-          (find-file (concat li3-app-path "controllers/" li3-plural-name "_controller.php"))
-        (message (format "Can't find %s" (concat li3-app-path "controllers/" li3-plural-name "_controller.php")))))))
+          (find-file (concat li3-app-path "controllers/" li3-plural-name "Controller.php"))
+        (message (format "Can't find %s" (concat li3-app-path "controllers/" li3-plural-name "Controller.php")))))))
 
 (defun anything-c-li3-switch-to-model ()
   "Switch to model."
