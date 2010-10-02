@@ -46,24 +46,10 @@
 ;;    Switch to view.
 ;;  `li3-switch-to-controller'
 ;;    Switch to contoroller.
-;;  `li3-switch-to-model-testcase'
-;;    Switch to model testcase.
-;;  `li3-switch-to-controller-testcase'
-;;    Switch to contoroller testcase.
-;;  `li3-switch-to-fixture'
-;;    Switch to fixture.
 ;;  `li3-switch-to-function'
 ;;    Switch to function.
-;;  `li3-switch-to-element'
-;;    Switch to element. If region is active, make new element file.
-;;  `li3-switch-to-javascript'
-;;    Switch to javascript.
-;;  `li3-switch-to-css'
-;;    Switch to stylesheet.
 ;;  `li3-switch'
 ;;    Omni switch function.
-;;  `li3-switch-testcase'
-;;    Switch testcase <-> C/M. Or, switch form fixture to testcase.
 ;;  `li3-switch-to-file-history'
 ;;    Switch to file history.
 ;;  `li3-open-dir'
@@ -74,12 +60,6 @@
 ;;    Open views directory.
 ;;  `li3-open-controllers-dir'
 ;;    Open contorollers directory.
-;;  `li3-open-behaviors-dir'
-;;    Open behaviors directory.
-;;  `li3-open-helpers-dir'
-;;    Open helpers directory.
-;;  `li3-open-components-dir'
-;;    Open components directory.
 ;;  `li3-open-config-dir'
 ;;    Open config dir.
 ;;  `li3-open-layouts-dir'
@@ -94,8 +74,6 @@
 ;;    Open tests directory.
 ;;  `li3-set-version'
 ;;    Set Lithium version.
-;;  `li3-complete'
-;;    Insert Lithium code.
 ;;  `li3-tail-log'
 ;;    Show log by "tail".
 ;;  `li3-singularize'
@@ -108,8 +86,6 @@
 ;;    anything only anything-c-source-li3-function.
 ;;  `anything-c-li3-anything-only-model-function'
 ;;    anything only anything-c-source-li3-model-function.
-;;  `anything-c-li3-anything-only-po'
-;;    anything only anything-c-source-li3-po.
 ;;
 ;;; Customizable Options:
 ;;
