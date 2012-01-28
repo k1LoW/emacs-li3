@@ -1,5 +1,4 @@
-;;;li3.el ---  Lithium Minor Mode
-;; -*- Mode: Emacs-Lisp -*-
+;;; li3.el --- Lithium Minor Mode
 
 ;; Copyright (C) 2010 by 101000code/101000LAB
 
